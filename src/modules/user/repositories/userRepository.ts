@@ -29,37 +29,60 @@ class UserRepository {
         })
     }
 
-    login(request: Request, response: Response){
+    login(request: Request, response: Response) {
         const { email, password } = request.body;
+    
         pool.getConnection((err: any, connection: any) => {
+            if (err) {
+                return response.status(500).json({ error: 'Erro ao conectar ao banco de dados.' });
+            }
+    
             connection.query(
-                'SELECT * FROM  users WHERE email=?',
-                [ email ],
-                (error: any, results: any, fileds:any) => {
+                'SELECT * FROM users WHERE email = ?',
+                [email],
+                (error: any, results: any) => {
                     connection.release();
+    
                     if (error) {
-                        return response.status(400).json({error: 'Erro na sua autenticação!'});
-                    };
-
-                    compare(password, results[0].password, (err, result) => {
-                        if(err){
-                            return response.status(400).json({error: 'Erro na sua autenticação!'});
+                        console.error('Erro na consulta ao banco de dados:', error);
+                        return response.status(500).json({ error: 'Erro na consulta ao banco de dados!' });
+                    }
+    
+                    if (!results || results.length === 0) {
+                        console.warn('Email não encontrado:', email);
+                        return response.status(400).json({ error: 'Email não encontrado. Por favor, forneça um email válido.' });
+                    }
+    
+                    const user = results[0];
+    
+                    if (!user || !user.password) {
+                        console.warn('Usuário não encontrado ou senha não disponível para email:', email);
+                        return response.status(400).json({ error: 'Usuário não encontrado ou senha não disponível.' });
+                    }
+    
+                    compare(password, user.password, (err, isMatch) => {
+                        if (err) {
+                            console.error('Erro ao comparar senhas:', err);
+                            return response.status(500).json({ error: 'Erro na sua autenticação!' });
                         }
-
-                        if(result){
-                            // Gerar o token
-                            const token = sign({
-                                id: results[0].user_id,
-                                email: results[0].email
-                            }, process.env.SECRET as string, {expiresIn: '1d'} );
-
-                            return response.status(200).json({ token: token, message: 'Autenticado com sucesso.' });
+    
+                        if (isMatch) {
+                            const token = sign(
+                                { id: user.user_id, email: user.email },
+                                process.env.SECRET as string,
+                                { expiresIn: '1d' }
+                            );
+    
+                            return response.status(200).json({ token, message: 'Autenticado com sucesso.' });
+                        } else {
+                            console.warn('Senha incorreta para email:', email);
+                            return response.status(400).json({ error: 'Senha incorreta.' });
                         }
-                    })
+                    });
                 }
-            )
-        })
-    }
+            );
+        });
+    }    
 
     getUser(request: any, response: any) {
         const token = request.headers.authorization;
