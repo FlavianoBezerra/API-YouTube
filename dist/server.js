@@ -20,4 +20,4 @@ app.use((0, cors_1.default)()); //middleware
 app.use(express_1.default.json());
 app.use('/user', user_routes_1.userRoutes);
 app.use('/videos', videos_routes_1.videosRoutes);
-app.listen(4000);
+app.listen(3000);

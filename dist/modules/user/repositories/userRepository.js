@@ -9,17 +9,30 @@ class UserRepository {
     create(request, response) {
         const { name, email, password } = request.body;
         mysql_1.pool.getConnection((err, connection) => {
+            if (err) {
+                return response.status(500).json(err);
+            }
             (0, bcrypt_1.hash)(password, 10, (err, hash) => {
                 if (err) {
+                    connection.release();
                     return response.status(500).json(err);
                 }
-                connection.query('INSERT INTO users (user_id, name, email, password) VALUES (?, ?, ?, ?)', [(0, uuid_1.v4)(), name, email, hash], (error, results, fileds) => {
-                    connection.release();
+                connection.query('SELECT email FROM users WHERE email = ?', [email], (error, result) => {
                     if (error) {
-                        return response.status(400).json(error);
+                        connection.release();
+                        return response.status(500).json(error);
                     }
-                    ;
-                    response.status(200).json({ message: 'Usuário criado com sucesso.' });
+                    if (result.length > 0) {
+                        connection.release();
+                        return response.status(409).json({ message: "E-mail já existente" });
+                    }
+                    connection.query('INSERT INTO users (user_id, name, email, password) VALUES (?, ?, ?, ?)', [(0, uuid_1.v4)(), name, email, hash], (error) => {
+                        connection.release();
+                        if (error) {
+                            return response.status(400).json(error);
+                        }
+                        response.status(200).json({ message: 'Usuário criado com sucesso.' });
+                    });
                 });
             });
         });
@@ -27,23 +40,36 @@ class UserRepository {
     login(request, response) {
         const { email, password } = request.body;
         mysql_1.pool.getConnection((err, connection) => {
-            connection.query('SELECT * FROM  users WHERE email=?', [email], (error, results, fileds) => {
+            if (err) {
+                return response.status(500).json({ error: 'Erro ao conectar ao banco de dados.' });
+            }
+            connection.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
                 connection.release();
                 if (error) {
-                    return response.status(400).json({ error: 'Erro na sua autenticação!' });
+                    console.error('Erro na consulta ao banco de dados:', error);
+                    return response.status(500).json({ error: 'Erro na consulta ao banco de dados!' });
                 }
-                ;
-                (0, bcrypt_1.compare)(password, results[0].password, (err, result) => {
+                if (!results || results.length === 0) {
+                    console.warn('Email não encontrado:', email);
+                    return response.status(400).json({ error: 'Email não encontrado. Por favor, forneça um email válido.' });
+                }
+                const user = results[0];
+                if (!user || !user.password) {
+                    console.warn('Usuário não encontrado ou senha não disponível para email:', email);
+                    return response.status(400).json({ error: 'Usuário não encontrado ou senha não disponível.' });
+                }
+                (0, bcrypt_1.compare)(password, user.password, (err, isMatch) => {
                     if (err) {
-                        return response.status(400).json({ error: 'Erro na sua autenticação!' });
+                        console.error('Erro ao comparar senhas:', err);
+                        return response.status(500).json({ error: 'Erro na sua autenticação!' });
                     }
-                    if (result) {
-                        // Gerar o token
-                        const token = (0, jsonwebtoken_1.sign)({
-                            id: results[0].user_id,
-                            email: results[0].email
-                        }, process.env.SECRET, { expiresIn: '1d' });
-                        return response.status(200).json({ token: token, message: 'Autenticado com sucesso.' });
+                    if (isMatch) {
+                        const token = (0, jsonwebtoken_1.sign)({ id: user.user_id, email: user.email }, process.env.SECRET, { expiresIn: '1d' });
+                        return response.status(200).json({ token, message: 'Autenticado com sucesso.' });
+                    }
+                    else {
+                        console.warn('Senha incorreta para email:', email);
+                        return response.status(400).json({ error: 'Senha incorreta.' });
                     }
                 });
             });

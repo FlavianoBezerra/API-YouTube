@@ -7,27 +7,49 @@ import { Request, Response } from "express";
 class UserRepository {
     create(request: Request, response: Response){
         const { name, email, password } = request.body;
+    
         pool.getConnection((err: any, connection: any) => {
+            if (err) {
+                return response.status(500).json(err);
+            }
+    
             hash(password, 10, (err, hash) => {
                 if (err) {
-                    return response.status(500).json(err)
+                    connection.release();
+                    return response.status(500).json(err);
                 }
-
+    
                 connection.query(
-                    'INSERT INTO users (user_id, name, email, password) VALUES (?, ?, ?, ?)',
-                    [uuidv4(), name, email, hash],
-                    (error: any, results: any, fileds:any) => {
-                        connection.release();
+                    'SELECT email FROM users WHERE email = ?',
+                    [email],
+                    (error: any, result: any) => {
                         if (error) {
-                            return response.status(400).json(error);
-                        };
-        
-                        response.status(200).json({ message: 'Usuário criado com sucesso.' })
+                            connection.release();
+                            return response.status(500).json(error);
+                        }
+    
+                        if (result.length > 0) {
+                            connection.release();
+                            return response.status(409).json({ message: "E-mail já existente" });
+                        }
+    
+                        connection.query(
+                            'INSERT INTO users (user_id, name, email, password) VALUES (?, ?, ?, ?)',
+                            [uuidv4(), name, email, hash],
+                            (error: any) => {
+                                connection.release();
+                                if (error) {
+                                    return response.status(400).json(error);
+                                }
+    
+                                response.status(200).json({ message: 'Usuário criado com sucesso.' });
+                            }
+                        );
                     }
-                )
-            })
-        })
-    }
+                );
+            });
+        });
+    }    
 
     login(request: Request, response: Response) {
         const { email, password } = request.body;
