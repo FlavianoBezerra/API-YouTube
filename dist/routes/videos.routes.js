@@ -10,7 +10,7 @@ const videoRepository = new VideosRepository_1.VideoRepository();
 videosRoutes.post('/create-video', login_1.login, (request, response) => {
     videoRepository.create(request, response);
 });
-videosRoutes.get('/get-video', (request, response) => {
+videosRoutes.get('/get-video', login_1.login, (request, response) => {
     videoRepository.getVideos(request, response);
 });
 videosRoutes.get('/search-video', (request, response) => {

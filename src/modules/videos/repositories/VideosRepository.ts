@@ -4,12 +4,12 @@ import { Request, Response } from "express";
 
 class VideoRepository {
     create(request: Request, response: Response) {
-        const { title, description, user_id } = request.body;
+        const { title, description, user_id, video_img, post_time } = request.body;
         pool.getConnection((err: any, connection: any) => {
 
             connection.query(
-                'INSERT INTO videos (video_id, user_id, title, description) VALUES (?, ?, ?, ?)',
-                [uuidv4(), user_id, title, description],
+                'INSERT INTO videos (video_id, user_id, title, description) VALUES (?, ?, ?, ?, ?, ?)',
+                [uuidv4(), user_id, title, description, video_img, post_time],
                 (error: any, results: any, fileds:any) => {
                     connection.release();
                     if (error) {
@@ -43,8 +43,8 @@ class VideoRepository {
         const { search } = request.query;
         pool.getConnection((err: any, connection: any) => {
             connection.query(
-                'SELECT * FROM  videos WHERE description LIKE ?',
-                [ `%${search}%` ],
+                'SELECT * FROM  videos WHERE title LIKE ? OR description LIKE ?',
+                [ `%${ search }%`, `%${ search }%` ],
                 (error: any, results: any, fileds:any) => {
                     connection.release();
                     if (error) {

@@ -5,9 +5,9 @@ const mysql_1 = require("../../../mysql");
 const uuid_1 = require("uuid");
 class VideoRepository {
     create(request, response) {
-        const { title, description, user_id } = request.body;
+        const { title, description, user_id, video_img, post_time } = request.body;
         mysql_1.pool.getConnection((err, connection) => {
-            connection.query('INSERT INTO videos (video_id, user_id, title, description) VALUES (?, ?, ?, ?)', [(0, uuid_1.v4)(), user_id, title, description], (error, results, fileds) => {
+            connection.query('INSERT INTO videos (video_id, user_id, title, description) VALUES (?, ?, ?, ?, ?, ?)', [(0, uuid_1.v4)(), user_id, title, description, video_img, post_time], (error, results, fileds) => {
                 connection.release();
                 if (error) {
                     return response.status(400).json(error);
@@ -33,7 +33,7 @@ class VideoRepository {
     searchVideos(request, response) {
         const { search } = request.query;
         mysql_1.pool.getConnection((err, connection) => {
-            connection.query('SELECT * FROM  videos WHERE description LIKE ?', [`%${search}%`], (error, results, fileds) => {
+            connection.query('SELECT * FROM  videos WHERE title LIKE ? OR description LIKE ?', [`%${search}%`, `%${search}%`], (error, results, fileds) => {
                 connection.release();
                 if (error) {
                     return response.status(400).json({ error: 'Erro ao buscar os vídeos!' });
