@@ -10,14 +10,15 @@ const dotenv_1 = require("dotenv");
 const cors_1 = __importDefault(require("cors"));
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
-app.use(function (request, response, next) {
-    response.header("Access-Control-Allow-Origin", "*");
-    response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    response.header("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE, OPTIONS");
-    next();
-});
-app.use((0, cors_1.default)()); //middleware
+// Configuração do CORS
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express_1.default.json());
 app.use('/user', user_routes_1.userRoutes);
 app.use('/videos', videos_routes_1.videosRoutes);
-app.listen(3000);
+app.listen(4000, () => {
+    console.log('Server is running on http://localhost:4000');
+});
