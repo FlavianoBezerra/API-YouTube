@@ -5,9 +5,9 @@ import { login } from "../middleware/login";
 const videosRoutes = Router();
 const videoRepository = new VideoRepository();
  
-videosRoutes.post( '/create-video', login, (request, response) => {
-    videoRepository.create(request, response);
-})
+videosRoutes.post('/create-video/:user_id', login, (request, response) => {
+    VideoRepository.create(request, response);
+});
 
 videosRoutes.get( '/get-video', login, (request, response) => {
     videoRepository.getVideos(request, response);

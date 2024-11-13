@@ -3,23 +3,34 @@ import { v4 as uuidv4  } from 'uuid';
 import { Request, Response } from "express";
 
 class VideoRepository {
-    create(request: Request, response: Response) {
-        const { title, description, user_id, video_img, post_time } = request.body;
-        pool.getConnection((err: any, connection: any) => {
+    static create(request: Request, response: Response) {
+        const { user_id, videoTitle, videoDescription, imageUrl, post_time } = request.body;
 
+        if (!user_id || !videoTitle || !videoDescription || !imageUrl || !post_time) {
+            return response.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+        }
+
+        const formattedPostTime = new Date(post_time).toISOString().slice(0, 19).replace('T', ' ');
+        
+        pool.getConnection((err: any, connection: any) => {
+            if (err) {
+                return response.status(500).json({ message: 'Erro ao conectar com o banco de dados.', error: err });
+            }
             connection.query(
-                'INSERT INTO videos (video_id, user_id, title, description) VALUES (?, ?, ?, ?, ?, ?)',
-                [uuidv4(), user_id, title, description, video_img, post_time],
-                (error: any, results: any, fileds:any) => {
-                    connection.release();
+                'INSERT INTO videos (video_id, user_id, videoTitle, videoDescription, imageUrl, post_time) VALUES (?, ?, ?, ?, ?, ?)',
+                [uuidv4(), user_id, videoTitle, videoDescription, imageUrl, formattedPostTime],
+                (error: any, results: any, fields: any) => {
+                    connection.release(); // Libera a conexão após a consulta
+
                     if (error) {
-                        return response.status(400).json(error);
-                    };
-    
-                    response.status(200).json({ message: 'Vídeo criado com sucesso.' })
+                        console.error('Erro ao salvar no banco de dados:', error);
+                        return response.status(400).json({ message: 'Erro ao salvar o vídeo no banco de dados.', error: error });
+                    }
+
+                    response.status(200).json({ message: 'Vídeo criado com sucesso.' });
                 }
-            )
-        })
+            );
+        });
     }
 
     getVideos( request: Request, response: Response ){
