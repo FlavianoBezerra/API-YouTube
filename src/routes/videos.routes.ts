@@ -9,7 +9,7 @@ videosRoutes.post('/create-video/:user_id', login, (request, response) => {
     VideoRepository.create(request, response);
 });
 
-videosRoutes.get( '/get-video', login, (request, response) => {
+videosRoutes.get( '/get-video/:user_id', login, (request, response) => {
     videoRepository.getVideos(request, response);
 })
 

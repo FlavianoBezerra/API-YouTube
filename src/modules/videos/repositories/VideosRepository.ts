@@ -33,23 +33,32 @@ class VideoRepository {
         });
     }
 
-    getVideos( request: Request, response: Response ){
-        const { user_id } = request.body;
-        pool.getConnection((err: any, connection: any) => {
+    getVideos = (request: Request, response: Response): void => {
+        const { user_id } = request.params;
+        pool.getConnection((err, connection) => {
+            if (err) {
+                return response.status(500).json({ error: 'Erro ao conectar ao banco de dados' });
+            }
+      
             connection.query(
-                'SELECT * FROM  videos WHERE user_id=?',
-                [ user_id ],
-                (error: any, results: any, fileds:any) => {
+                'SELECT * FROM videos WHERE user_id = ?',
+                [user_id],
+                (error, results: any) => {
                     connection.release();
+        
                     if (error) {
-                        return response.status(400).json({error: 'Erro ao buscar os vídeos!'});
-                    };
+                        return response.status(400).json({ error: 'Erro ao buscar os vídeos!' });
+                    }
+                            
+                    if (results.length === 0) {
+                        return response.status(404).json({ message: 'Nenhum vídeo encontrado para esse usuário.' });
+                    }
                     return response.status(200).json({ message: 'Vídeos retornados com sucesso.', videos: results });
                 }
-            )
-        })
-    }
-
+            );
+        });
+    };
+    
     searchVideos( request: Request, response: Response ){
         const { search } = request.query;
         pool.getConnection((err: any, connection: any) => {
