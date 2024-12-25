@@ -1,5 +1,4 @@
 import express from 'express';
-import { runMigrations } from './migrate';
 import { userRoutes } from './routes/user.routes';
 import { videosRoutes } from './routes/videos.routes';
 import { config } from 'dotenv';
@@ -22,19 +21,7 @@ app.use(express.json());
 app.use('/user', userRoutes);
 app.use('/videos', videosRoutes);
 
-const initializeDatabase = async () => {
-  try {
-    await runMigrations();
-    console.log('Migrações aplicadas com sucesso!');
-  } catch (error) {
-    console.error('Erro ao aplicar as migrações:', error);
-    process.exit(1);
-  }
-};
-
-const startServer = async () => {
-  await initializeDatabase();
-
+const startServer = () => {
   app.listen(4000, () => {
     console.log('Server is running on http://localhost:4000');
   });
