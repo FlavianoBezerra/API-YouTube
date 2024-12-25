@@ -6,8 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/server.ts",
+    "clean": "rimraf ./dist",
     "build": "npx tsc",
-    "start": "node ./dist/server.js"
+    "start": "node ./dist/server.js",
+    "migrate": "npx ts-node src/migrate.ts"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +37,7 @@
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.2"
   }
 }
