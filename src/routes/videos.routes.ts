@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { VideoRepository } from "../modules/videos/repositories/VideosRepository";
+import { VideoRepository } from "../modules/videos/repositories/videosRepository";
 import { login } from "../middleware/login";
 
 const videosRoutes = Router();
 const videoRepository = new VideoRepository();
  
 videosRoutes.post('/create-video/:user_id', login, (request, response) => {
-    VideoRepository.create(request, response);
+    videoRepository.create(request, response);
 });
 
 videosRoutes.get( '/get-video/:user_id', login, (request, response) => {
