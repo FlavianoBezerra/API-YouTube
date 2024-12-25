@@ -8,10 +8,14 @@ const up = (knex) => {
         table.string('email').notNullable().unique();
         table.string('password').notNullable();
         table.timestamps(true, true);
+    }).then(() => {
+        console.log('Table created successfully');
     });
 };
 exports.up = up;
 const down = (knex) => {
-    return knex.schema.dropTableIfExists('users');
+    return knex.schema.dropTableIfExists('users').then(() => {
+        console.log('Table dropped successfully');
+    });
 };
 exports.down = down;
