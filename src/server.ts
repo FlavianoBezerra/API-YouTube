@@ -10,7 +10,7 @@ const app = express();
 
 // Configuração do CORS
 app.use(cors({
-    origin: 'http://localhost:3000',  // Permite solicitações de localhost:3000 (ajuste conforme necessário)
+    origin: process.env.FRONTEND_URL,  // Permite solicitações (ajuste conforme necessário)
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
