@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { VideoRepository } from "../modules/videos/repositories/videosRepository";
+import { VideoRepository } from "../modules/videos/repositories/videoRepository";
 import { login } from "../middleware/login";
 
 const videosRoutes = Router();
