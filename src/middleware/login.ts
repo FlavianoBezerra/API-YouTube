@@ -1,4 +1,7 @@
 import { verify } from "jsonwebtoken";
+import { config } from "dotenv";
+
+config();
 
 const login = (req: any, res: any, next: any) => {
     try {
