@@ -1,8 +1,8 @@
 # Clone da Interface do YouTube - Back-End
 
-Este projeto é o back-end de um clone da interface do YouTube, construído com **Node.js** e **TypeScript**. Ele oferece funcionalidades de login, gerenciamento de usuários e vídeos, e interage com um banco de dados MySQL.
+Este projeto é o back-end de um clone da interface do YouTube, construído com **Node.js** e **TypeScript**. Ele oferece funcionalidades de login, gerenciamento de usuários e vídeos, e interage com um banco de dados PostgreSQL.
 
-- [Acessar projeto online](https://star-wars-characters-sepia.vercel.app/).
+- Você pode acessar o repositório do front-end do projeto [aqui](https://github.com/FlavianoBezerra/YouTube-Project).
 
 ## Estrutura do Projeto
 
@@ -13,6 +13,9 @@ A estrutura do diretório do projeto é organizada da seguinte maneira:
 - **src**: Pasta contendo o código fonte do projeto.  
   - **middleware**: Pasta com as funções de middleware.  
     - **login.ts**: Arquivo de login.  
+  - **migrations**: Pasta com as migrations para criação das tabelas do banco de dados.  
+    - **20241218031425_create_users_table.ts**: Migration para criação da tabela de usuários.  
+    - **20241218031538_create_videos_table.ts**: Migration para criação da tabela de vídeos.  
   - **modules**: Pasta com os módulos do projeto.  
     - **user/repositories**: Pasta com os repositórios de usuários.  
       - **userRepository.ts**: Arquivo com o repositório de usuários.  
@@ -21,14 +24,16 @@ A estrutura do diretório do projeto é organizada da seguinte maneira:
   - **routes**: Pasta com as rotas do projeto.  
     - **user.routes.ts**: Arquivo com as rotas de usuário.  
     - **videos.routes.ts**: Arquivo com as rotas de vídeos.  
-  - **mysql.ts**: Arquivo de configuração do banco de dados MySQL.  
+  - **knexfile.ts**: Arquivo de configuração do Knex, utilizado para definir as conexões com o banco de dados e as configurações de migrations.  
+  - **migrate.ts**: Script para rodar as migrations utilizando o Knex.    
   - **server.ts**: Arquivo com a lógica do servidor.  
 - **.env**: Arquivo de variáveis de ambiente.  
 - **.gitignore**: Arquivo com os arquivos a serem ignorados pelo Git.  
+- **LICENSE**: Arquivo de licença do projeto.  
 - **package-lock.json**: Arquivo que descreve as dependências do projeto e suas versões.  
 - **package.json**: Arquivo que descreve as dependências do projeto e seus scripts.  
 - **tsconfig.json**: Arquivo de configuração do Typescript.
-- **LICENSE**: Arquivo de licença do projeto.  
+- **vercel.json**: Arquivo de configuração do Vercel para definir as rotas, ambientes e outras configurações necessárias para o deploy da aplicação.
 
 ## Instalação
 
@@ -38,14 +43,14 @@ Certifique-se de ter os seguintes itens instalados no seu ambiente de desenvolvi
 
 - Node.js (versão 14 ou superior)
 - npm (gerenciador de pacotes do Node.js)
-- MySQL (ou outro banco de dados configurado)
+- PostgreSQL (ou outro banco de dados configurado)
 
 ### Passos para Instalar
 
 1. Clone o repositório:
 
     ```bash
-    git clone https://github.com/seu-usuario/clone-youtube-backend.git
+    git clone https://github.com/FlavianoBezerra/API-YouTube.git
     ```
 
 2. Instale as dependências:
@@ -57,11 +62,9 @@ Certifique-se de ter os seguintes itens instalados no seu ambiente de desenvolvi
 3. Crie o arquivo `.env` na raiz do projeto e configure suas variáveis de ambiente:
 
     ```env
-    DB_HOST=localhost
-    DB_USER=root
-    DB_PASSWORD=senha
-    DB_NAME=clone_youtube
-    JWT_SECRET=seu-segredo
+    SECRET=xxxxxxxxxxxxx
+    DATABASE_URL=xxxxxxx
+    FRONTEND_URL=xxxxxxx
     ```
 
 4. Compile o projeto TypeScript:
@@ -121,6 +124,12 @@ Este projeto contém os seguintes scripts:
     npm run dev
     ```
 
+- **clean**: Remove o diretório `dist` utilizando `rimraf` para limpar os arquivos de build.
+
+    ```bash
+    npm run clean
+    ```
+
 - **build**: Compila o código TypeScript para JavaScript no diretório `dist`.
 
     ```bash
@@ -133,6 +142,13 @@ Este projeto contém os seguintes scripts:
     npm start
     ```
 
+- **migrate**: Executa o script de migrations utilizando `ts-node` para rodar o arquivo `src/migrate.ts`.
+
+    ```bash
+    npm run migrate
+    ```
+
+
 ## Dependências
 
 O projeto utiliza as seguintes dependências principais:
@@ -142,7 +158,9 @@ O projeto utiliza as seguintes dependências principais:
 - **dotenv**: Carrega variáveis de ambiente a partir de um arquivo `.env`.
 - **express**: Framework web para Node.js.
 - **jsonwebtoken**: Biblioteca para trabalhar com JSON Web Tokens (JWT).
+- **knex** Biblioteca para construção de consultas SQL.
 - **mysql**: Driver para MySQL.
+- **pg** Driver para PostgreSQL.
 - **uuid**: Geração de identificadores únicos universais.
 
 ### Dependências de Desenvolvimento
@@ -151,10 +169,14 @@ O projeto utiliza as seguintes dependências principais:
 - **@types/cors**: Tipagens para o `cors`.
 - **@types/express**: Tipagens para o `express`.
 - **@types/jsonwebtoken**: Tipagens para o `jsonwebtoken`.
+- **@types/knex** Tipos TypeScript para a biblioteca `knex`.
 - **@types/mysql**: Tipagens para o `mysql`.
+- **@types/node** Tipos TypeScript para o ambiente Node.js.
 - **@types/uuid**: Tipagens para o `uuid`.
 - **nodemon**: Ferramenta para reiniciar o servidor automaticamente durante o desenvolvimento.
+- **ts-node** Executa código TypeScript diretamente no Node.js.
 - **ts-node-dev**: Compilador para TypeScript com recarga dinâmica no desenvolvimento.
+- **tsconfig-paths** Resolução de caminhos personalizados no TypeScript.
 - **typescript**: O compilador TypeScript.
 
 ## Possíveis Alterações Futuras
@@ -168,7 +190,3 @@ O projeto utiliza as seguintes dependências principais:
 Este projeto está licenciado sob a Licença MIT – veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 Criado por [Flaviano Bezerra](https://www.linkedin.com/in/flaviano-bezerra-5203bb333).
-
-## Repositório Front-end
-
-Você pode acessar o repositório do front-end do projeto [aqui](https://github.com/seu-usuario/clone-youtube-backend).
