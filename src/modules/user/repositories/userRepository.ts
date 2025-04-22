@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 
 class UserRepository {
     async create(request: Request, response: Response) {
-        const { name, email, password } = request.body;
+        const { email, password, name } = request.body;
     
         try {
             const existingUser = await knex('users').where({ email }).first();
